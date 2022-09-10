@@ -121,10 +121,9 @@ class twitter_scraper:
         query_params = {
                         'query': f'(from:{user} -is:retweet) ',
                         'tweet.fields': 'author_id,id,created_at',
-                        "start_time":f"{self.start_time}",
-                        "end_time":f"{self.end_time}",
+                        "start_time":f"{self._start_date}",
+                        "end_time":f"{self._end_date}",
                         "max_results": "100",
-                        "next_token": results_json['meta']['next_token']
                 }
 
         while result_count == 100:
@@ -158,4 +157,3 @@ class twitter_scraper:
                     all_results.append([user, tweet['created_at'], tweet['id']])
 
         return all_results
-
