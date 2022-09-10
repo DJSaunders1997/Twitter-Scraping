@@ -5,6 +5,10 @@ import pandas as pd
 import requests
 
 class twitter_scraper:
+    """A class to allow users to easily interface with the twitter API with minimal knowledge.
+    Users simply have to initialise the class with a valid twitter bearer token then call the 
+    get_list_users_tweets() method with its parameters to retrieve the requested tweet information.
+    """
     version = "0.1"
     search_url = "https://api.twitter.com/2/tweets/search/all"
     header = ""
@@ -21,8 +25,51 @@ class twitter_scraper:
 
         print(f"twitter_scraper v{self.version} initialised.")
 
+    # This is essentially the main code of the project all other functions only support this. 
+    # Does that mean that this should go first?
+    def get_list_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
+        """Function to get all tweet ID's from a given date range for a list of users.
+        This is the "main" function users should interact with when using this class.
 
-    def connect_to_endpoint(self, query_params:dict) -> json:
+        Args:
+            users (list[str]): List of twitter users to get tweets from. A list containing a single user is valid.
+            start_date (str): Start timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
+            end_date (str): End timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
+
+        Raises:
+            TypeError: Raises if list of username is specified incorrectly.
+
+        Returns:
+            pd.DataFrame: DateFrame containing 3 columns 'User', 'TweetCreated', 'TweetId'.
+        """
+
+        #Type check on users to only accept a list of strings, including single element strings.
+        if not isinstance(users, list):
+            raise TypeError(message=f"This function only accepts lists of users. {users} is not a valid list of users.")
+
+        # TODO: accept other datetime formats but convert to expected format before saving as class/instance variables.
+        # TODO: Accept multiple datetime formats such as "2020-01-01" and "2020-01-01-07:00:00"
+        # then convert this to the twitter expected representation "2019-10-01T17:07:04.000Z"
+        self._start_date = start_date
+        self._end_date = end_date
+
+        res = []
+
+        for user in users:
+            
+            print('-'*30)
+            print(f"User: {user} Number: {users.index(user)+1} of {len(users)}")
+            print('-'*30)
+            print()
+            res.extend( self._users_tweets(user) )
+
+        #Convert results from list of list to DataFrame
+        # TODO: return more than just tweet ID, then let users filter and choose what they want afterwards.
+        tweets_df = pd.DataFrame.from_records(res, columns=['User', 'TweetCreated', 'TweetId'])
+
+        return tweets_df
+
+    def _connect_to_endpoint(self, query_params:dict) -> json:
         """Function sends messages to the twitter API endpoint.
         TODO: Maybe rename function to send request or something as that's what it does.
 
@@ -97,7 +144,7 @@ class twitter_scraper:
                         "next_token": results_json['meta']['next_token']
                 }
 
-            json_response = self.connect_to_endpoint(query_params)
+            json_response = self._connect_to_endpoint(query_params)
 
             results = json.dumps(json_response, indent=4, sort_keys=True)
             results_json = json.loads(results)
@@ -118,48 +165,3 @@ class twitter_scraper:
 
         return all_results
 
-
-    # This is essentially the main code of the project all other functions only support this. 
-    # Does that mean that this should go first?
-
-    def get_list_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
-        """Function to get all tweet ID's from a given date range for a list of users.
-        This is the "main" function users should interact with when using this class.
-
-        Args:
-            users (list[str]): List of twitter users to get tweets from. A list containing a single user is valid.
-            start_date (str): Start timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
-            end_date (str): End timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
-
-        Raises:
-            TypeError: Raises if list of username is specified incorrectly.
-
-        Returns:
-            pd.DataFrame: DateFrame containing 3 columns 'User', 'TweetCreated', 'TweetId'.
-        """
-
-        #Type check on users to only accept a list of strings, including single element strings.
-        if not isinstance(users, list):
-            raise TypeError(message=f"This function only accepts lists of users. {users} is not a valid list of users.")
-
-        # TODO: accept other datetime formats but convert to expected format before saving as class/instance variables.
-        # TODO: Accept multiple datetime formats such as "2020-01-01" and "2020-01-01-07:00:00"
-        # then convert this to the twitter expected representation "2019-10-01T17:07:04.000Z"
-        self._start_date = start_date
-        self._end_date = end_date
-
-        res = []
-
-        for user in users:
-            
-            print('-'*30)
-            print(f"User: {user} Number: {users.index(user)+1} of {len(users)}")
-            print('-'*30)
-            print()
-            res.extend( self._users_tweets(user) )
-
-        #Convert results from list of list to DataFrame
-        # TODO: return more than just tweet ID, then let users filter and choose what they want afterwards.
-        tweets_df = pd.DataFrame.from_records(res, columns=['User', 'TweetCreated', 'TweetId'])
-
-        return tweets_df
