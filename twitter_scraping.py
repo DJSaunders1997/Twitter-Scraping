@@ -7,7 +7,7 @@ import requests
 class twitter_scraper:
     """A class to allow users to easily interface with the twitter API with minimal knowledge.
     Users simply have to initialise the class with a valid twitter bearer token then call the 
-    get_list_users_tweets() method with its parameters to retrieve the requested tweet information.
+    get_users_tweets() method with its parameters to retrieve the requested tweet information.
     """
     version = "0.1"
     search_url = "https://api.twitter.com/2/tweets/search/all"
@@ -27,7 +27,7 @@ class twitter_scraper:
 
     # This is essentially the main code of the project all other functions only support this. 
     # Does that mean that this should go first?
-    def get_list_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
+    def get_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
         """Function to get all tweet ID's from a given date range for a list of users.
         This is the "main" function users should interact with when using this class.
 
@@ -100,7 +100,7 @@ class twitter_scraper:
     # Is a hidden helper function that creates the query to send to twitters api
     # Also controls the frequency of requests to stay under twitters limit.
     #  
-    # To query a single users tweets users should use the get_list_users_tweets 
+    # To query a single users tweets users should use the get_users_tweets 
     # function instead of this but with a list containing a single user 
 
         Args:
