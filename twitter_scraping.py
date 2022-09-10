@@ -10,15 +10,32 @@ class twitter_scraper:
     header = ""
 
     def __init__(self, bearer_token:str) -> None:
-        # TODO: Remember that self.header is a replacement for the create_headers function
+        """Initalises the class with the value of the users bearer_token.
+        Prints version num to inform users which version they're using.
+        TODO: Verify token      
+
+        Args:
+            bearer_token (str): Users token required for verification by the twitter API.
+        """
         self.header = {"Authorization": "Bearer {}".format(bearer_token)} # Add verification?
 
         print(f"twitter_scraper v{self.version} initialised.")
 
 
     def connect_to_endpoint(self, query_params:dict) -> json:
-        # query params is a dict that tells twitter what to look for
-        # this could be renamed to send request or something as I think thats what it does
+        """Function sends messages to the twitter API endpoint.
+        TODO: Maybe rename function to send request or something as that's what it does.
+
+        Args:
+            query_params (dict): Dictionary that contains the query details of what tweets twitter should retrieve for us. 
+
+        Raises:
+            Exception: Raises if the response from Twitter is ever not just 200 OK.
+            #TODO: Raise specific error type related to requests or networking 
+
+        Returns:
+            response.json() (json): Returns the full message response in JSON format.
+        """
 
         response = requests.request("GET", self.search_url, headers=self.header, params=query_params)
 
@@ -30,31 +47,35 @@ class twitter_scraper:
             return response.json()
 
     
-    # Get all results from one user
+    def _users_tweets(self, user:str) -> list:
+        """    # Get all results from one user
     # TODO: Documentation
     # Is a hidden helper function that creates the query to send to twitters api
     # Also controls the frequency of requests to stay under twitters limit.
     #  
     # To query a single users tweets users should use the get_list_users_tweets 
     # function instead of this but with a list containing a single user 
-    def _users_tweets(self, user:str, start_time:str, end_time:str) -> list:
-        '''
-        users - a list of twitter user
-        start_time - start date + time we want #TODO: Implement
-        end_time - end date + time we want   #TODO: Implement
-        '''
+
+        Args:
+            user (str): A Twitter username
+
+        Returns:
+            all_results (list): List of tweets, containing username, time, and ID of tweet.
+        """
         num_runs = 0
         all_results = []
 
-        result_count = 100  # initilise this as a non-zero number
-                            # will be filled with respnses from json later 
+        result_count = 100  # initialise this as a non-zero number
+                            # will be filled with responses from json later 
                             # can get a max of 100 records at a time
-                            # so if the results arnt 100 we ran out of things to get
+                            # so if the results aren't 100 we ran out of things to get
                             # we can halt execution after every 100 records to stay under the twitter limit. 
 
         while result_count == 100:
 
             time.sleep(4)
+
+            # TODO: Define template query dict before loop and condition.
 
             if num_runs ==0:
                 # No next_token parameter
@@ -70,8 +91,8 @@ class twitter_scraper:
                 query_params = {
                         'query': f'(from:{user} -is:retweet) ',
                         'tweet.fields': 'author_id,id,created_at',
-                        "start_time":f"{start_time}",
-                        "end_time":f"{end_time}",
+                        "start_time":f"{self.start_time}",
+                        "end_time":f"{self.end_time}",
                         "max_results": "100",
                         "next_token": results_json['meta']['next_token']
                 }
@@ -86,7 +107,7 @@ class twitter_scraper:
             result_count = results_json['meta']['result_count']
             num_runs = num_runs + 1
 
-            # Only add results if theyre non zero
+            # Only add results if they're non zero
             if result_count > 0:
                 list_of_tweet_dicts = results_json['data']
 
@@ -98,25 +119,34 @@ class twitter_scraper:
         return all_results
 
 
-    # THIS IS ESSENTIALLY THE MAIN CODE OF THE PROJECT
-    # ALL OTHER FUNCTIONS ONLY SUPPORT THIS 
-    # DOES THAT MEAN THAT THIS SHOULD GO FIRST?
-    # TODO: Think whether a list of users should be specified here, 
-    #       or whether it should be specified as a class variable earlier
-    # TODO: Accept multiple datetime formats such as "2020-01-01" and "2020-01-01-07:00:00"
-    #       then convert this to the twitter expected representation "2019-10-01T17:07:04.000Z"
-    def get_list_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
-        '''
-        Function to get all tweet ID's from a given date range for a list of users.
+    # This is essentially the main code of the project all other functions only support this. 
+    # Does that mean that this should go first?
 
-        users - a list of twitter users. A list containing a single user is acceptable.
-        start_date - start date + time we want
-        end_date - end date + time we want
-        '''
+    def get_list_users_tweets(self, users:list[str], start_date:str, end_date:str) -> pd.DataFrame:
+        """Function to get all tweet ID's from a given date range for a list of users.
+        This is the "main" function users should interact with when using this class.
+
+        Args:
+            users (list[str]): List of twitter users to get tweets from. A list containing a single user is valid.
+            start_date (str): Start timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
+            end_date (str): End timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
+
+        Raises:
+            TypeError: Raises if list of username is specified incorrectly.
+
+        Returns:
+            pd.DataFrame: DateFrame containing 3 columns 'User', 'TweetCreated', 'TweetId'.
+        """
 
         #Type check on users to only accept a list of strings, including single element strings.
         if not isinstance(users, list):
             raise TypeError(message=f"This function only accepts lists of users. {users} is not a valid list of users.")
+
+        # TODO: accept other datetime formats but convert to expected format before saving as class/instance variables.
+        # TODO: Accept multiple datetime formats such as "2020-01-01" and "2020-01-01-07:00:00"
+        # then convert this to the twitter expected representation "2019-10-01T17:07:04.000Z"
+        self._start_date = start_date
+        self._end_date = end_date
 
         res = []
 
@@ -126,10 +156,7 @@ class twitter_scraper:
             print(f"User: {user} Number: {users.index(user)+1} of {len(users)}")
             print('-'*30)
             print()
-            # Append results of function to results
-            # Extend will insure everything is in the same list
-            # Append would create a list of lists
-            res.extend( self._users_tweets(user, start_date, end_date ) )
+            res.extend( self._users_tweets(user) )
 
         #Convert results from list of list to DataFrame
         # TODO: return more than just tweet ID, then let users filter and choose what they want afterwards.
