@@ -95,13 +95,12 @@ class twitter_scraper:
 
     
     def _users_tweets(self, user:str) -> list:
-        """    # Get all results from one user
-    # TODO: Documentation
-    # Is a hidden helper function that creates the query to send to twitters api
-    # Also controls the frequency of requests to stay under twitters limit.
-    #  
-    # To query a single users tweets users should use the get_users_tweets 
-    # function instead of this but with a list containing a single user 
+        """Get all results from one user.
+        Is a hidden helper function that creates the query to send to twitters API
+        Also controls the frequency of requests to stay under twitters limit.
+        
+        To query a single users tweets users should use the get_users_tweets 
+        function instead of this but with a list containing a single user.
 
         Args:
             user (str): A Twitter username
@@ -118,24 +117,8 @@ class twitter_scraper:
                             # so if the results aren't 100 we ran out of things to get
                             # we can halt execution after every 100 records to stay under the twitter limit. 
 
-        while result_count == 100:
-
-            time.sleep(4)
-
-            # TODO: Define template query dict before loop and condition.
-
-            if num_runs ==0:
-                # No next_token parameter
-                query_params = {
-                        'query': f'(from:{user} -is:retweet) ',
-                        'tweet.fields': 'author_id,id,created_at',
-                        "start_time":"2019-10-01T07:20:50.52Z",
-                        "end_time":"2019-11-01T07:20:50.52Z",
-                        "max_results": "100"
-                }
-            else:
-                # with next_token
-                query_params = {
+        # Define template query dict before loop and condition.
+        query_params = {
                         'query': f'(from:{user} -is:retweet) ',
                         'tweet.fields': 'author_id,id,created_at',
                         "start_time":f"{self.start_time}",
@@ -143,6 +126,17 @@ class twitter_scraper:
                         "max_results": "100",
                         "next_token": results_json['meta']['next_token']
                 }
+
+        while result_count == 100:
+
+            time.sleep(4)
+
+            if num_runs ==0:
+                # No next_token parameter
+                query_params = query_params
+            else:
+                # Add next token to params dict
+                query_params["next_token"] = results_json['meta']['next_token']
 
             json_response = self._connect_to_endpoint(query_params)
 
