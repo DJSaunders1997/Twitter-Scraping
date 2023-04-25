@@ -1,6 +1,12 @@
 # 🚀 Twitter-Scraping
 Just a test to see about scraping info from twitter. Will update description as this use case develops.
 
+## 🤔 How To Use
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DJSaunders1997/Twitter-Scraping/HEAD?labpath=.%2Fbinder_notebook.ipynb)
+
+👆 Easily run the code through binder. Simply replace <enter-your-key-here> with your twitter api key!
+ 
 ## 💡 Full Archive Search
 
 This script allows you to search for tweets within a specified date range for a list of users. The script imports the necessary libraries, sets up the bearer token, and provides a function to perform the search.
@@ -27,7 +33,6 @@ To install the dependencies, you can use the provided `requirements.yml` file to
 Here's an example of how to use the script to search for tweets from a list of users:
 
 ```
-import os
 from twitter_scraping import twitter_scraper
 
 bearer_token = os.environ["twitter_bearer_token"]
