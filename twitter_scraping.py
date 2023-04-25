@@ -140,11 +140,9 @@ class twitter_scraper:
 
             time.sleep(4)
 
-            if num_runs == 0:
-                # No next_token parameter
-                query_params = query_params
-            else:
-                # Add next token to params dict
+            # First run has no next_token parameter
+            # Otherwise add next token to params dict
+            if num_runs > 0:
                 query_params["next_token"] = results_json["meta"]["next_token"]
 
             json_response = self._connect_to_endpoint(query_params)
