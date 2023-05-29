@@ -97,11 +97,10 @@ class twitter_scraper:
             "GET", self.search_url, headers=self.header, params=query_params
         )
 
-        print(response.status_code)
         if response.status_code != 200:
-            print(response.status_code)
             raise Exception(response.status_code, response.text)
         else:
+            print(response.status_code)
             return response.json()
 
     def _users_tweets(self, user: str) -> list:
