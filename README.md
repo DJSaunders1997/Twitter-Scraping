@@ -1,5 +1,5 @@
 # 🚀 Twitter-Scraping
-Just a test to see about scraping info from twitter. Will update description as this use case develops.
+Project that queries the Twitter API to get all tweets from a list of users between a given date range.
 
 ## 🤔 How To Use
 
@@ -23,7 +23,7 @@ To install the dependencies, you can use the provided `requirements.yml` file to
 ## 🚀 Usage
 
 1. Obtain a Twitter bearer token from the Twitter Developer Dashboard and store it as an environment variable.
-2. Import the `TwitterScraper` class from the `twitter_scraping.py` file.
+2. Import the `twitter_scraper` class from the `twitter_scraping.py` file.
 3. Initialize the class with your bearer token.
 4. Call the `get_users_tweets` method with a list of Twitter usernames and the desired date range.
 5. The method will return a pandas DataFrame with columns for the username, tweet creation time, and tweet ID.
@@ -33,10 +33,10 @@ To install the dependencies, you can use the provided `requirements.yml` file to
 Here's an example of how to use the script to search for tweets from a list of users:
 
 ```
-from twitter_scraping import TwitterScraper
+from twitter_scraping import twitter_scraper
 
 bearer_token = os.environ["twitter_bearer_token"]
-ts = TwitterScraper(bearer_token)
+ts = twitter_scraper(bearer_token)
 users = ["nigel_farage", "CNNChile"]
 start_date = "2019-10-01T00:00:00.00Z"
 end_date = "2019-11-01T00:00:00.00Z"
