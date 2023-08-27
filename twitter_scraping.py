@@ -74,12 +74,11 @@ class TwitterScraper:
 
         return tweets_df
 
-    def _connect_to_endpoint(self, query_params: dict) -> json:
-        """Function sends messages to the twitter API endpoint.
-        TODO: Maybe rename function to send request or something as that's what it does.
-
+    def _send_request(self, query_params: dict) -> json:
+        """Connect to Twitter API endpoint.
+        
         Args:
-            query_params (dict): Dictionary that contains the query details of what tweets twitter should retrieve for us.
+            query_params (Dict[str, str]): Query parameters for the API request.
 
         Raises:
             Exception: Raises if the response from Twitter is ever not just 200 OK.
@@ -99,6 +98,22 @@ class TwitterScraper:
         else:
             return response.json()
 
+    def _construct_query(self, user: str) -> Dict[str, str]:
+        """Construct query parameters.
+        
+        Args:
+            user (str): Twitter username.
+        
+        Returns:
+            Dict[str, str]: Dictionary of query parameters.
+        """
+        return {
+            "query": f"(from:{user} -is:retweet)",
+            "tweet.fields": "author_id,id,created_at,text",
+            "start_time": self._start_date,
+            "end_time": self._end_date,
+            "max_results": "100",
+        }
     def _fetch_user_tweets(self, user: str) -> list:
         """Internal method to fetch tweets for a single user.
         Constructs query to send to twitters API
@@ -127,7 +142,7 @@ class TwitterScraper:
             "end_time": f"{self._end_date}",
             "max_results": "100",
         }
-
+        query_params = self._construct_query(user)
         while result_count == 100:
 
             time.sleep(4)
@@ -137,7 +152,7 @@ class TwitterScraper:
             if num_runs > 0:
                 query_params["next_token"] = results_json["meta"]["next_token"]
 
-            json_response = self._connect_to_endpoint(query_params)
+            json_response = self._send_request(query_params)
 
             results = json.dumps(json_response, indent=4, sort_keys=True)
             results_json = json.loads(results)
