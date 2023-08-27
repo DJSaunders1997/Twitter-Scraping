@@ -18,12 +18,10 @@ class TwitterScraper:
     header = ""
 
     def __init__(self, bearer_token: str) -> None:
-        """Initalises the class with the value of the users bearer_token.
-        Prints version num to inform users which version they're using.
-        TODO: Verify token
-
+        """Initialize TwitterScraper.
+        
         Args:
-            bearer_token (str): Users token required for verification by the twitter API.
+            bearer_token (str): Bearer token for Twitter API.
         """
         self.header = {
             "Authorization": "Bearer {}".format(bearer_token)
@@ -31,42 +29,38 @@ class TwitterScraper:
 
         print(f"TwitterScraper v{self.version} initialised.")
 
-    # This is essentially the main code of the project all other functions only support this.
-    # Does that mean that this should go first?
     def get_users_tweets(
         self, users: list[str], start_date: str, end_date: str
     ) -> pd.DataFrame:
-        """Function to get all tweet ID's from a given date range for a list of users.
-        This is the "main" function users should interact with when using this class.
-
+        """Fetch tweets from a list of users within a date range.
+        Date format should be in the ISO 8601 standard 
+        e.g. "2019-10-01T17:07:04.000Z"
+        TODO: Accept other datetime formats and convert
+        
         Args:
-            users (list[str]): List of twitter users to get tweets from. A list containing a single user is valid.
-            start_date (str): Start timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
-            end_date (str): End timestamp of tweets to retrieve. TODO: Say what timestamp format is used.
-
+            users (List[str]): List of Twitter usernames.
+            start_date (str): Starting date in Twitter's datetime format.
+            end_date (str): Ending date in Twitter's datetime format.
+        
         Raises:
-            TypeError: Raises if list of username is specified incorrectly.
-
+            TypeError: If 'users' is not a list.
+        
         Returns:
-            pd.DataFrame: DateFrame containing 3 columns 'User', 'TweetCreated', 'TweetId'.
+            pd.DataFrame: DataFrame with fetched tweet information.
         """
 
-        # Type check on users to only accept a list of strings, including single element strings.
+        # Type check
         if not isinstance(users, list):
             raise TypeError(
                 message=f"This function only accepts lists of users. {users} is not a valid list of users."
             )
 
-        # TODO: accept other datetime formats but convert to expected format before saving as class/instance variables.
-        # TODO: Accept multiple datetime formats such as "2020-01-01" and "2020-01-01-07:00:00"
-        # then convert this to the twitter expected representation "2019-10-01T17:07:04.000Z"
         self._start_date = start_date
         self._end_date = end_date
 
         res = []
 
         for user in users:
-
             print("-" * 30)
             print(f"User: {user} Number: {users.index(user)+1} of {len(users)}")
             print("-" * 30)
@@ -74,7 +68,6 @@ class TwitterScraper:
             res.extend(self._users_tweets(user))
 
         # Convert results from list of list to DataFrame
-        # TODO: return more than just tweet ID, then let users filter and choose what they want afterwards.
         tweets_df = pd.DataFrame.from_records(
             res, columns=["User", "TweetCreated", "TweetId", "Link", "Contents"]
         )
@@ -107,15 +100,12 @@ class TwitterScraper:
             return response.json()
 
     def _users_tweets(self, user: str) -> list:
-        """Get all results from one user.
-        Is a hidden helper function that creates the query to send to twitters API
+        """Internal method to fetch tweets for a single user.
+        Constructs query to send to twitters API
         Also controls the frequency of requests to stay under twitters limit.
 
-        To query a single users tweets users should use the get_users_tweets
-        function instead of this but with a list containing a single user.
-
         Args:
-            user (str): A Twitter username
+            user (str): Twitter username to fetch tweets for.
 
         Returns:
             all_results (list): List of tweets, containing username, time, ID, and text of tweet.
