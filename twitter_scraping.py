@@ -73,7 +73,7 @@ class twitter_scraper:
         # Convert results from list of list to DataFrame
         # TODO: return more than just tweet ID, then let users filter and choose what they want afterwards.
         tweets_df = pd.DataFrame.from_records(
-            res, columns=["User", "TweetCreated", "TweetId", "Contents"]
+            res, columns=["User", "TweetCreated", "TweetId", "Link", "Contents"]
         )
 
         return tweets_df
@@ -98,9 +98,9 @@ class twitter_scraper:
         )
 
         if response.status_code != 200:
+            print(response)
             raise Exception(response.status_code, response.text)
         else:
-            print(response.status_code)
             return response.json()
 
     def _users_tweets(self, user: str) -> list:
@@ -163,6 +163,14 @@ class twitter_scraper:
                 )
 
                 for tweet in list_of_tweet_dicts:
-                    all_results.append([user, tweet["created_at"], tweet["id"], tweet["text"]])
+                    all_results.append(
+                        [
+                            user, 
+                            tweet["created_at"], 
+                            tweet["id"], 
+                            f'https://twitter.com/{user}/status/{tweet["id"]}',
+                            tweet["text"].replace("\\n", "\n")
+                            ]
+                    )
 
         return all_results
