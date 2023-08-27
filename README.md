@@ -1,5 +1,5 @@
 # 🚀 Twitter-Scraping
-Just a test to see about scraping info from twitter. Will update description as this use case develops.
+Project that queries the Twitter API to get all tweets from a list of users between a given date range.
 
 ## 🤔 How To Use
 
