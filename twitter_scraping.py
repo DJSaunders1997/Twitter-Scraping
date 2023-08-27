@@ -65,7 +65,7 @@ class TwitterScraper:
             print(f"User: {user} Number: {users.index(user)+1} of {len(users)}")
             print("-" * 30)
             print()
-            res.extend(self._users_tweets(user))
+            res.extend(self._fetch_user_tweets(user))
 
         # Convert results from list of list to DataFrame
         tweets_df = pd.DataFrame.from_records(
@@ -99,7 +99,7 @@ class TwitterScraper:
         else:
             return response.json()
 
-    def _users_tweets(self, user: str) -> list:
+    def _fetch_user_tweets(self, user: str) -> list:
         """Internal method to fetch tweets for a single user.
         Constructs query to send to twitters API
         Also controls the frequency of requests to stay under twitters limit.
