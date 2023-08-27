@@ -5,9 +5,12 @@ import requests
 
 
 class TwitterScraper:
-    """A class to allow users to easily interface with the twitter API with minimal knowledge.
-    Users simply have to initialise the class with a valid twitter bearer token then call the
-    get_users_tweets() method with its parameters to retrieve the requested tweet information.
+    """Twitter Scraper class to fetch tweets from Twitter API.
+    
+    Attributes:
+        version (str): Version information.
+        search_url (str): Twitter search API URL.
+        header (Dict[str, str]): Header for the API request.
     """
 
     version = "0.1"
