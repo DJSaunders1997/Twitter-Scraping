@@ -6,7 +6,7 @@ import requests
 
 class TwitterScraper:
     """Twitter Scraper class to fetch tweets from Twitter API.
-    
+
     Attributes:
         version (str): Version information.
         search_url (str): Twitter search API URL.
@@ -19,7 +19,7 @@ class TwitterScraper:
 
     def __init__(self, bearer_token: str) -> None:
         """Initialize TwitterScraper.
-        
+
         Args:
             bearer_token (str): Bearer token for Twitter API.
         """
@@ -33,18 +33,18 @@ class TwitterScraper:
         self, users: list[str], start_date: str, end_date: str
     ) -> pd.DataFrame:
         """Fetch tweets from a list of users within a date range.
-        Date format should be in the ISO 8601 standard 
+        Date format should be in the ISO 8601 standard
         e.g. "2019-10-01T17:07:04.000Z"
         TODO: Accept other datetime formats and convert
-        
+
         Args:
             users (List[str]): List of Twitter usernames.
             start_date (str): Starting date in Twitter's datetime format.
             end_date (str): Ending date in Twitter's datetime format.
-        
+
         Raises:
             TypeError: If 'users' is not a list.
-        
+
         Returns:
             pd.DataFrame: DataFrame with fetched tweet information.
         """
@@ -76,7 +76,7 @@ class TwitterScraper:
 
     def _send_request(self, query_params: dict) -> json:
         """Connect to Twitter API endpoint.
-        
+
         Args:
             query_params (Dict[str, str]): Query parameters for the API request.
 
@@ -100,10 +100,10 @@ class TwitterScraper:
 
     def _construct_query(self, user: str) -> Dict[str, str]:
         """Construct query parameters.
-        
+
         Args:
             user (str): Twitter username.
-        
+
         Returns:
             Dict[str, str]: Dictionary of query parameters.
         """
@@ -114,6 +114,7 @@ class TwitterScraper:
             "end_time": self._end_date,
             "max_results": "100",
         }
+
     def _fetch_user_tweets(self, user: str) -> list:
         """Internal method to fetch tweets for a single user.
         Constructs query to send to twitters API
@@ -144,7 +145,6 @@ class TwitterScraper:
         }
         query_params = self._construct_query(user)
         while result_count == 100:
-
             time.sleep(4)
 
             # First run has no next_token parameter
@@ -173,12 +173,12 @@ class TwitterScraper:
                 for tweet in list_of_tweet_dicts:
                     all_results.append(
                         [
-                            user, 
-                            tweet["created_at"], 
-                            tweet["id"], 
+                            user,
+                            tweet["created_at"],
+                            tweet["id"],
                             f'https://twitter.com/{user}/status/{tweet["id"]}',
-                            tweet["text"].replace("\\n", "\n")
-                            ]
+                            tweet["text"].replace("\\n", "\n"),
+                        ]
                     )
 
         return all_results
