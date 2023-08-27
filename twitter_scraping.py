@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 
 
-class twitter_scraper:
+class TwitterScraper:
     """A class to allow users to easily interface with the twitter API with minimal knowledge.
     Users simply have to initialise the class with a valid twitter bearer token then call the
     get_users_tweets() method with its parameters to retrieve the requested tweet information.
@@ -26,7 +26,7 @@ class twitter_scraper:
             "Authorization": "Bearer {}".format(bearer_token)
         }  # Add verification?
 
-        print(f"twitter_scraper v{self.version} initialised.")
+        print(f"TwitterScraper v{self.version} initialised.")
 
     # This is essentially the main code of the project all other functions only support this.
     # Does that mean that this should go first?
